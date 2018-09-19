@@ -16,7 +16,7 @@ type wallet struct {
 }
 
 func (currentWallet *wallet) addBalance(addedSum int) wallet {
-	(*currentWallet).balance += addedSum
+	currentWallet.balance += addedSum
 	return *currentWallet
 }
 
@@ -26,8 +26,9 @@ func (currentWallet *wallet) makePayment(recipientWallet *wallet, paymentSum uin
 		return false
 	}
 
-	(*currentWallet).balance -= int(paymentSum)
-	(*recipientWallet).balance += int(paymentSum)
+	currentWallet.addBalance(-int(paymentSum))
+	recipientWallet.addBalance(int(paymentSum))
+
 	fmt.Println(fmt.Sprintf("Перевод с кошелька %[1]d на кошелек %[2]d суммы %[3]s прошел успешно", currentWallet.id, recipientWallet.id, getStringFromSum(int(paymentSum))))
 
 	return true
@@ -40,9 +41,12 @@ func (currentWallet wallet) getBalanceString() (result string) {
 func getStringFromSum(sum int) (result string) {
 	result = strconv.Itoa(sum/100) + ","
 	remainder := sum % 100
-	result += strconv.Itoa(remainder)
+	remainderString := strconv.Itoa(remainder)
 	if remainder == 0 {
-		result += "0"
+		remainderString += "0"
+	} else if remainder < 10 {
+		remainderString = "0" + remainderString
 	}
+	result += remainderString
 	return
 }

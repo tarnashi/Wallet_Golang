@@ -9,17 +9,17 @@ import (
 var wallets []wallet
 
 type addRequestDto struct {
-	balance int
+	Balance int
 }
 
 type getBalanceRequestDto struct {
-	id int
+	ID int
 }
 
 type makePaymentRequestDto struct {
-	senderID    int
-	recipientID int
-	sum         uint
+	SenderID    int
+	RecipientID int
+	Sum         uint
 }
 
 func main() {
@@ -48,7 +48,7 @@ func add(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	id := addWallet(reqDto.balance)
+	id := addWallet(reqDto.Balance)
 
 	fmt.Println(id)
 }
@@ -67,7 +67,7 @@ func getBalance(rw http.ResponseWriter, req *http.Request) {
 		fmt.Println(errParse)
 	}
 
-	wal, errGet := getWallet(reqDto.id)
+	wal, errGet := getWallet(reqDto.ID)
 	if errGet != nil {
 		fmt.Println(errGet)
 		return
@@ -88,21 +88,22 @@ func makePayment(rw http.ResponseWriter, req *http.Request) {
 
 	if errParse != nil {
 		fmt.Println(errParse)
+		return
 	}
 
-	senderWallet, errGetSender := getWallet(reqDto.senderID)
+	senderWallet, errGetSender := getWallet(reqDto.SenderID)
 	if errGetSender != nil {
 		fmt.Println(errGetSender)
 		return
 	}
 
-	recipientWallet, errGetRecipient := getWallet(reqDto.recipientID)
+	recipientWallet, errGetRecipient := getWallet(reqDto.RecipientID)
 	if errGetRecipient != nil {
 		fmt.Println(errGetRecipient)
 		return
 	}
 
-	senderWallet.makePayment(&recipientWallet, reqDto.sum)
+	senderWallet.makePayment(recipientWallet, reqDto.Sum)
 }
 
 func showAll(rw http.ResponseWriter, req *http.Request) {
@@ -117,20 +118,20 @@ func initWallets() {
 		},
 		wallet{
 			id:      2,
-			balance: 0,
+			balance: 2000,
 		},
 	}
 }
 
-func getWallet(id int) (wallet, error) {
-	for _, item := range wallets {
+func getWallet(id int) (*wallet, error) {
+	for index, item := range wallets {
 		if item.id == id {
-			return item, nil
+			return &wallets[index], nil
 		}
 	}
 
 	var result wallet
-	return result, fmt.Errorf("Wallet with id %d doesn't exist", id)
+	return &result, fmt.Errorf("Wallet with id %d doesn't exist", id)
 }
 
 func addWallet(initBalance int) int {
